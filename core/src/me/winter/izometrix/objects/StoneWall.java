@@ -1,4 +1,4 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 import me.winter.izometrix.GameTexture;
 import me.winter.izometrix.IsometricWorld;

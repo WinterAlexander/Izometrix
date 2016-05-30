@@ -1,12 +1,12 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 import me.winter.izometrix.IsometricWorld;
 
-public abstract class IsometricThing
+public abstract class IsometricObject
 {
 	private IsometricWorld world;
 	
-	public IsometricThing(IsometricWorld world)
+	public IsometricObject(IsometricWorld world)
 	{
 		this.world = world;
 	}

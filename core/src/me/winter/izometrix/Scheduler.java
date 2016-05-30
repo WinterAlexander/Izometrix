@@ -2,131 +2,249 @@ package me.winter.izometrix;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Represents a scheduler executing tasks at a defined time
+ *
+ * @see Task
+ */
 public class Scheduler 
 {
-	private ArrayList<Task> tasks;
-	private ArrayList<Task> standby;
-	private ArrayList<Task> corbeille;
-	private long pauseTime;
-	private long lastPause;
-	private long lastPauseTime;
-	private boolean paused;
-	private boolean updating;
-	
+	private Optional<Logger> logger;
+
+	private List<Task> tasks;
+	private long pauseLength, lastPause, lastPauseLength;
+	private boolean stop, updating;
+
+	/**
+	 * Creating a new scheduler stopped by default without logging
+	 *
+	 */
 	public Scheduler()
 	{
-		this.tasks = new ArrayList<Task>();
-		this.standby = new ArrayList<Task>();
-		this.corbeille = new ArrayList<Task>();
-		this.paused = true;
-		this.lastPause = System.currentTimeMillis();
-		this.lastPauseTime = 0;
-		this.pauseTime = 0;
-		this.updating = false;
+		this(null);
 	}
-	
-	public void addTask(Task task)
+
+	/**
+	 * Creating a new scheduler stopped by default with a logger
+	 *
+	 */
+	public Scheduler(Logger logger)
 	{
-		if(!this.updating)
-			this.tasks.add(task);
-		
-		else
-			this.standby.add(task);
+		this.logger = Optional.ofNullable(logger);
+		this.tasks = new ArrayList<>();
+		this.stop = true;
+		this.lastPauseLength = System.nanoTime() / 1_000_000;
+		this.pauseLength = lastPauseLength;
+		this.lastPause = getTimeMillis();
 	}
-	
-	public void addTasks(Collection<Task> tasks)
+
+	/**
+	 * Mark the scheduler as started. You need to execute the update method
+	 * in a loop or call the loop method to actually execute the tasks.
+	 * Update won't work if the scheduler isn't started
+	 */
+	public void start()
 	{
-		for(Task task : tasks)
-			this.addTask(task);
+		stop = false;
+		lastPauseLength = System.nanoTime() / 1_000_000 - lastPause;
+		pauseLength += lastPauseLength;
 	}
-	
-	public void cancel(Task task)
+
+	/**
+	 * Stops the scheduler
+	 */
+	public void stop()
 	{
-		this.corbeille.add(task);
-	}
-	
-	public void cancelAll()
-	{
-		this.tasks = new ArrayList<Task>();
-		this.corbeille = new ArrayList<Task>();
-	}
-	
-	public void update()
-	{
-		if(!this.paused)
+		if(!stop)
 		{
-			this.updating = true;
-			this.removeCancelled();
-			
-			for(Task task : this.tasks)
+			stop = true;
+			lastPause = System.nanoTime() / 1_000_000;
+		}
+	}
+
+	public void loop(BooleanSupplier condition)
+	{
+		if(!isRunning())
+			start();
+
+		while(condition.getAsBoolean())
+		{
+			long toWait = getWaitingDelay();
+			if(toWait > 0)
 			{
 				try
 				{
-					int turns = (int) (((System.currentTimeMillis() - this.pauseTime) - task.getLastWork()) / task.getDelay());
-					for(int i = 0; i < turns; i++)
-						task.run();
-					
-					task.setLastWork(task.getLastWork() + task.getDelay() * turns);
+					synchronized(this)
+					{
+						if(toWait == Long.MAX_VALUE)
+							wait(0);
+						else
+							wait(toWait);
+					}
 				}
-				catch(Exception e)
+				catch(InterruptedException ex)
 				{
-					e.printStackTrace();
+					ex.printStackTrace(System.err);
 				}
 			}
-			this.updating = false;
-			if(this.standby.size() != 0)
-				for(Task task : this.standby)
-					this.addTask(task);
-			this.standby = new ArrayList<Task>();
+			update();
 		}
 	}
 
-	private void removeCancelled() 
+	public synchronized void update()
 	{
-		for(Task current : this.corbeille)
+		if(stop)
+			return;
+
+		updating = true;
+
+		for(Task task : new ArrayList<>(this.tasks))
 		{
-			if(this.tasks.contains(current))
+			try
 			{
-				this.tasks.remove(current);
+				if(task == null)
+					continue;
+
+				if(task.getScheduler() != this)
+				{
+					cancelTask(task);
+					continue;
+				}
+
+				if(task.getDelay() == 0)
+				{
+					task.run();
+					if(!task.isRepeating())
+					{
+						cancelTask(task);
+					}
+					continue;
+				}
+
+				int turns = (int) ((getTimeMillis() - task.getLastWork()) / task.getDelay());
+				if(!task.isRepeating() && turns >= 1)
+				{
+					task.run();
+					cancelTask(task);
+					continue;
+				}
+
+				for(int i = 0; i < turns; i++)
+					task.run();
+
+				task.setLastWork(task.getLastWork() + task.getDelay() * turns);
+			}
+			catch(Exception ex)
+			{
+				cancelTask(task);
+				logger.ifPresent(logger -> logger.log(Level.SEVERE, "Error in scheduler with task " + task.toString(), ex));
 			}
 		}
-		this.corbeille.clear();
+
+		updating = false;
 	}
-	
-	public void stop()
+
+	public long getWaitingDelay()
 	{
-		if(!this.paused)
+		long minDelay = Long.MAX_VALUE;
+
+		for(Task task : new ArrayList<>(getTasks()))
 		{
-			this.paused = true;
-			this.lastPause = System.currentTimeMillis();
+			if(task == null)
+				continue;
+
+			long delay = task.getLastWork() + task.getDelay() - getTimeMillis();
+			if(delay < minDelay)
+				minDelay = delay;
 		}
-	}
-	
-	public void start()
-	{
-		this.paused = false;
-		this.pauseTime += System.currentTimeMillis() - this.lastPause;
-		this.lastPauseTime = System.currentTimeMillis() - this.lastPause;
+
+		return minDelay;
 	}
 
-	public boolean isPause()
+	public long getTimeMillis()
 	{
-		return this.paused;
+		if(!isRunning())
+			return lastPause - pauseLength;
+		return System.nanoTime() / 1_000_000 - pauseLength;
 	}
 
-	public long getLastPauseTime()
+	public void addTask(Runnable runnable, int delay)
 	{
-		return lastPauseTime;
+		addTask(runnable, delay, false);
+	}
+
+	public void addTask(Runnable runnable, int delay, boolean repeat)
+	{
+		addTask(new Task(delay, repeat, runnable));
+	}
+
+	public void addTask(Task task)
+	{
+		task.register(this);
+		tasks.add(task);
+
+		if(!updating)
+			synchronized(this)
+			{
+				notify();
+			}
+	}
+
+	public void addTasks(Collection<Task> tasks)
+	{
+		for(Task task : tasks)
+			addTask(task);
+	}
+
+	public void cancelTask(Task task)
+	{
+		tasks.remove(task);
+	}
+
+	public void cancelTasks(Class<? extends Task> type)
+	{
+		cancelIf(type::isInstance);
+	}
+
+	public void cancelIf(Predicate<Task> filter)
+	{
+		tasks.removeIf(filter);
+	}
+
+	public void cancelAll()
+	{
+		tasks.clear();
+	}
+
+	public List<Task> getTasks()
+	{
+		return tasks;
+	}
+
+	public boolean isRunning()
+	{
+		return !stop;
+	}
+
+	public boolean isUpdating()
+	{
+		return updating;
+	}
+
+	public long getLastPauseLength()
+	{
+		return lastPauseLength;
 	}
 	
 	public long getLastPause()
 	{
 		return lastPause;
-	}
-	
-	public long getTimeMillis()
-	{
-		return System.currentTimeMillis() - this.pauseTime;
 	}
 }

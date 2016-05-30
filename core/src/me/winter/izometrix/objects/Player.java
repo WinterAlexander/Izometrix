@@ -1,4 +1,4 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 import me.winter.izometrix.Direction;
 import me.winter.izometrix.IsometricDrawer;

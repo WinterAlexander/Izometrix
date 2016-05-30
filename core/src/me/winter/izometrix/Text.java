@@ -6,7 +6,7 @@ public enum Text
 	MENU_RESUME("Resume", "Reprendre"),
 	MENU_CREDIT("Credits", "Crédits"),
 	MENU_SETTINGS("Settings", "Options"),
-	MENU_QUIT("Quit Game", "Quitter"),
+	MENU_QUIT("Quit Izometrix", "Quitter"),
 	
 	DIRECTION_NORTH("North", "Nord"),
 	DIRECTION_EAST("East", "Est"),

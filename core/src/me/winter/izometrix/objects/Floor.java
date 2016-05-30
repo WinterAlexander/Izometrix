@@ -1,10 +1,10 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 import me.winter.izometrix.IsometricDrawer;
 import me.winter.izometrix.GameTexture;
 import me.winter.izometrix.IsometricWorld;
 
-public abstract class Floor extends IsometricThing implements Visible
+public abstract class Floor extends IsometricObject implements Visible
 {
 	private int x, y;
 	

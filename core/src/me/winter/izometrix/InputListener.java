@@ -1,8 +1,5 @@
 package me.winter.izometrix;
 
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -10,8 +7,9 @@ import com.badlogic.gdx.InputProcessor;
 
 public class InputListener implements InputProcessor
 {
-	private Game game;
-	public InputListener(Game game)
+	private Izometrix game;
+
+	public InputListener(Izometrix game)
 	{
 		this.game = game;
 	}
@@ -63,28 +61,25 @@ public class InputListener implements InputProcessor
 
 	@Override
 	public boolean keyUp(int keycode)
-	{	
-		if(keycode == Input.Keys.UP && Gdx.app.getType() == ApplicationType.Desktop)
-		{
+	{
+		if(Gdx.app.getType() != ApplicationType.Desktop)
+			return false;
+
+		if(keycode == Input.Keys.UP)
 			game.getGui().getArrows().desactivateArrow(Direction.TOP_RIGHT);
-			return true;
-		}
-		if(keycode == Input.Keys.DOWN && Gdx.app.getType() == ApplicationType.Desktop)
-		{
+
+		else if(keycode == Input.Keys.DOWN)
 			game.getGui().getArrows().desactivateArrow(Direction.BOTTOM_LEFT);
-			return true;
-		}
-		if(keycode == Input.Keys.LEFT && Gdx.app.getType() == ApplicationType.Desktop)
-		{
+
+		else if(keycode == Input.Keys.LEFT)
 			game.getGui().getArrows().desactivateArrow(Direction.TOP_LEFT);
-			return true;
-		}
-		if(keycode == Input.Keys.RIGHT && Gdx.app.getType() == ApplicationType.Desktop)
-		{
+
+		else if(keycode == Input.Keys.RIGHT)
 			game.getGui().getArrows().desactivateArrow(Direction.BOTTOM_RIGHT);
-			return true;
-		}
-		return false;
+
+		else
+			return false;
+		return true;
 	}
 
 	@Override

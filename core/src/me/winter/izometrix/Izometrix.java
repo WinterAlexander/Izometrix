@@ -3,20 +3,20 @@ package me.winter.izometrix;
 import me.winter.izometrix.gui.Button;
 import me.winter.izometrix.gui.Gui;
 import me.winter.izometrix.gui.MenuHeader;
-import me.winter.izometrix.things.Bookcase;
-import me.winter.izometrix.things.Buffet;
-import me.winter.izometrix.things.Door;
-import me.winter.izometrix.things.Player;
-import me.winter.izometrix.things.StoneFloor;
-import me.winter.izometrix.things.StoneWall;
-import me.winter.izometrix.things.Table;
+import me.winter.izometrix.objects.Bookcase;
+import me.winter.izometrix.objects.Buffet;
+import me.winter.izometrix.objects.Door;
+import me.winter.izometrix.objects.Player;
+import me.winter.izometrix.objects.StoneFloor;
+import me.winter.izometrix.objects.StoneWall;
+import me.winter.izometrix.objects.Table;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class Game extends ApplicationAdapter
+public class Izometrix extends ApplicationAdapter
 {	
 	private Scheduler scheduler;
 	private SpriteBatch batch;

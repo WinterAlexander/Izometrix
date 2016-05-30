@@ -1,10 +1,10 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 import me.winter.izometrix.Direction;
 import me.winter.izometrix.IsometricWorld;
 import me.winter.izometrix.Location;
 
-public abstract class Furniture extends IsometricThing implements Solid, Visible
+public abstract class Furniture extends IsometricObject implements Solid, Visible
 {
 	private int x, y, width, height;
 

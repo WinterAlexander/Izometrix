@@ -80,7 +80,8 @@ public enum GameTexture
 	private int x, y, width, height;
 	private boolean flipX, flipY;
 	
-	private GameTexture(String file, int x, int y, int width, int height, boolean flipX, boolean flipY)
+
+	GameTexture(String file, int x, int y, int width, int height, boolean flipX, boolean flipY)
 	{
 		this(file);
 		this.x = x;
@@ -91,7 +92,7 @@ public enum GameTexture
 		this.flipY = flipY;
 	}
 	
-	private GameTexture(GameTexture texture, int x, int y, int width, int height, boolean flipX, boolean flipY)
+	GameTexture(GameTexture texture, int x, int y, int width, int height, boolean flipX, boolean flipY)
 	{
 		this.texture = texture.getTexture();
 		this.x = x;
@@ -102,7 +103,7 @@ public enum GameTexture
 		this.flipY = flipY;
 	}
 	
-	private GameTexture(String file)
+	GameTexture(String file)
 	{
 		try
 		{
@@ -122,7 +123,7 @@ public enum GameTexture
 		this.flipY = false;
 	}
 	
-	private GameTexture(GameTexture texture, boolean flipX, boolean flipY)
+	GameTexture(GameTexture texture, boolean flipX, boolean flipY)
 	{
 		this.texture = texture.getTexture();
 		this.x = texture.getX();

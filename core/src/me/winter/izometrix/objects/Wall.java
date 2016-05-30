@@ -1,4 +1,4 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 import me.winter.izometrix.Direction;
 import me.winter.izometrix.IsometricDrawer;
@@ -6,7 +6,7 @@ import me.winter.izometrix.GameTexture;
 import me.winter.izometrix.IsometricWorld;
 import me.winter.izometrix.Location;
 
-public abstract class Wall extends IsometricThing implements Visible, Solid
+public abstract class Wall extends IsometricObject implements Visible, Solid
 {
 	private int x, y, destX, destY;
 	

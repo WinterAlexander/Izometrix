@@ -2,7 +2,7 @@ package me.winter.izometrix.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import me.winter.izometrix.Game;
+import me.winter.izometrix.Izometrix;
 
 public class DesktopLauncher
 {
@@ -11,7 +11,7 @@ public class DesktopLauncher
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.resizable = true;
 		config.title = "Nom du jeu";
-		new LwjglApplication(new Game(), config);
+		new LwjglApplication(new Izometrix(), config);
 	}
 }
 

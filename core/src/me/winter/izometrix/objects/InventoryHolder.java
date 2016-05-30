@@ -1,4 +1,4 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 public interface InventoryHolder
 {

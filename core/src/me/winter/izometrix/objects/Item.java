@@ -1,8 +1,8 @@
-package me.winter.izometrix.things;
+package me.winter.izometrix.objects;
 
 import me.winter.izometrix.IsometricWorld;
 
-public class Item extends IsometricThing
+public class Item extends IsometricObject
 {
 	public Item(IsometricWorld world)
 	{

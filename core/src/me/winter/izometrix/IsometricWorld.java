@@ -1,9 +1,9 @@
 package me.winter.izometrix;
 
-import me.winter.izometrix.things.Actionable;
-import me.winter.izometrix.things.IsometricThing;
-import me.winter.izometrix.things.Solid;
-import me.winter.izometrix.things.Visible;
+import me.winter.izometrix.objects.Actionable;
+import me.winter.izometrix.objects.IsometricObject;
+import me.winter.izometrix.objects.Solid;
+import me.winter.izometrix.objects.Visible;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +12,18 @@ public class IsometricWorld
 {
 	private int[] limits;
 	
-	private Game game;
-	private ArrayList<IsometricThing> things;
+	private Izometrix game;
+	private ArrayList<IsometricObject> things;
 	private IsometricDrawer drawer;
 	
-	public IsometricWorld(Game game, IsometricDrawer drawer, int[] limits)
+	public IsometricWorld(Izometrix game, IsometricDrawer drawer, int[] limits)
 	{
 		if(game == null)
 			throw new NullPointerException("scheduler CANNOT be null !");
 		
 		this.game = game;
 		
-		this.things = new ArrayList<IsometricThing>();
+		this.things = new ArrayList<IsometricObject>();
 		
 		if(drawer == null)
 			throw new NullPointerException("drawer CANNOT be null !");
@@ -53,7 +53,7 @@ public class IsometricWorld
 	{
 		List<Visible> visibles = new ArrayList<Visible>();
 		
-		for(IsometricThing thing : this.things)
+		for(IsometricObject thing : this.things)
 			if(thing instanceof Visible)
 				visibles.add((Visible) thing);
 		
@@ -81,13 +81,13 @@ public class IsometricWorld
 		return result;
 	}
 	
-	public void addThing(IsometricThing thing)
+	public void addThing(IsometricObject thing)
 	{
 		this.things.add(thing);
 		thing.init();
 	}
 	
-	public Game getGame()
+	public Izometrix getGame()
 	{
 		return this.game;
 	}
@@ -124,7 +124,7 @@ public class IsometricWorld
 		if(loc.getY() + direction.getY() > limits[3])
 			return false;
 		
-		for(IsometricThing thing : this.things)
+		for(IsometricObject thing : this.things)
 			if(thing instanceof Solid)
 				if(((Solid) thing).isBlocked(loc, width, height, direction))
 					return false;
@@ -133,12 +133,12 @@ public class IsometricWorld
 
 	public void push(Location loc, Direction direction)
 	{
-		for(IsometricThing thing : this.things)
+		for(IsometricObject thing : this.things)
 			if(thing instanceof Actionable)
 				((Actionable) thing).onPush(loc, direction);
 	}
 
-	public List<IsometricThing> getThings()
+	public List<IsometricObject> getThings()
 	{
 		return this.things;
 	}
